@@ -1,0 +1,6 @@
+domain: my.domain
+layout:
+- go.kubebuilder.io/v3
+projectName: image-clone-controller
+repo: github.com/shahincsejnu/image-clone-controller
+version: "3"

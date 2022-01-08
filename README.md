@@ -8,6 +8,7 @@ Kubernetes controller which watches applications (Deployment and DaemonSet) and 
  
 
 ## Resources:
+- https://book.kubebuilder.io/quick-start.html
 - https://github.com/kubernetes-sigs/controller-runtime  
 - https://github.com/kubernetes-sigs/controller-runtime/tree/master/examples/builtins  
 - https://github.com/google/go-containerregistry/blob/master/pkg/v1/remote/README.md  
