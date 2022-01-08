@@ -1,0 +1,6 @@
+apiVersion: apps.my.domain/v1
+kind: DaemonSet
+metadata:
+  name: daemonset-sample
+spec:
+  # TODO(user): Add fields here
