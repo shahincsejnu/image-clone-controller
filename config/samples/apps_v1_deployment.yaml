@@ -1,0 +1,6 @@
+apiVersion: apps.my.domain/v1
+kind: Deployment
+metadata:
+  name: deployment-sample
+spec:
+  # TODO(user): Add fields here

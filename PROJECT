@@ -3,4 +3,14 @@ layout:
 - go.kubebuilder.io/v3
 projectName: image-clone-controller
 repo: github.com/shahincsejnu/image-clone-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: my.domain
+  group: apps
+  kind: Deployment
+  path: github.com/shahincsejnu/image-clone-controller/api/v1
+  version: v1
 version: "3"
