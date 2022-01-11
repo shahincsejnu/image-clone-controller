@@ -26,27 +26,29 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+      imagePullSecrets:
+      - name: cred
       containers:
       - command:
         - /manager
         args:
         - --leader-elect
-        image: controller:latest
+        image: shahincsejnu/controller:v0.0.1
         name: manager
         securityContext:
           allowPrivilegeEscalation: false
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8081
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8081
-          initialDelaySeconds: 5
-          periodSeconds: 10
+#        livenessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: 8081
+#          initialDelaySeconds: 15
+#          periodSeconds: 20
+#        readinessProbe:
+#          httpGet:
+#            path: /readyz
+#            port: 8081
+#          initialDelaySeconds: 5
+#          periodSeconds: 10
         # TODO(user): Configure the resources accordingly based on the project requirements.
         # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
         resources:
@@ -56,5 +58,4 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-      serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10

@@ -7,6 +7,7 @@ package controllers
 import (
 	"context"
 	"github.com/go-logr/logr"
+	"github.com/google/go-containerregistry/pkg/crane"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -29,6 +30,10 @@ type DeploymentReconciler struct {
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=apps,resources=deployments/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=apps,resources=deployments/finalizers,verbs=update
+//+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=*,resources=*,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -48,24 +53,18 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// traverse all of the containers of deployment to check & clone the images
 	for index, container := range obj.Spec.Template.Spec.Containers {
 		img := container.Image
 		// Ignore containers who are using cloned image
 		if strings.HasPrefix(img, "shahincsejnu/") {
 			continue
 		}
-		// Add "clone/" as prefix of the image for marking that it's cloned image
+		// Add "shahincsejnu/" as prefix of the image for marking that it's cloned image
 		modifiedImage := "shahincsejnu/" + strings.ReplaceAll(img, "/", "-")
 
-		err := imagePull(img)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		err = imageTag(img, modifiedImage)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		err = imagePush(modifiedImage)
+		// copy the modified image to own repository using crane.Copy
+		err := crane.Copy(container.Image, modifiedImage)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

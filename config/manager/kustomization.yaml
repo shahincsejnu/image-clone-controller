@@ -5,6 +5,18 @@ generatorOptions:
   disableNameSuffixHash: true
 
 configMapGenerator:
-- name: manager-config
-  files:
+- files:
   - controller_manager_config.yaml
+  name: manager-config
+
+secretGenerator:
+- files:
+  - dockerhub-secret/.dockerconfigjson
+  name: cred
+  type: kubernetes.io/dockerconfigjson
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+images:
+- name: controller
+  newName: shahincsejnu/controller
+  newTag: v0.0.1

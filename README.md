@@ -13,6 +13,10 @@ Kubernetes controller which watches applications (Deployment and DaemonSet) and 
 - https://github.com/kubernetes-sigs/controller-runtime/tree/master/examples/builtins  
 - https://github.com/google/go-containerregistry/blob/master/pkg/v1/remote/README.md  
 - https://godoc.org/github.com/google/go-containerregistry/pkg/v1/remote  
+- https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+- https://github.com/google/go-containerregistry/blob/main/pkg/authn/k8schain/README.md
+- https://github.com/google/go-containerregistry/blob/main/cmd/crane/recipes.md
+- https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane_copy.md
 
 
 
