@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 	meta_util "kmodules.xyz/client-go/meta"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -53,15 +54,16 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	registry := os.Getenv("REGISTRY") + "/"
 	// traverse all of the containers of deployment to check & clone the images
 	for index, container := range obj.Spec.Template.Spec.Containers {
 		img := container.Image
 		// Ignore containers who are using cloned image
-		if strings.HasPrefix(img, "shahincsejnu/") {
+		if strings.HasPrefix(img, registry) {
 			continue
 		}
-		// Add "shahincsejnu/" as prefix of the image for marking that it's cloned image
-		modifiedImage := "shahincsejnu/" + strings.ReplaceAll(img, "/", "-")
+		// Add $REGISTRY as prefix of the image for marking that it's cloned image
+		modifiedImage := registry + strings.ReplaceAll(img, "/", "-")
 
 		// copy the modified image to own repository using crane.Copy
 		err := crane.Copy(container.Image, modifiedImage)
