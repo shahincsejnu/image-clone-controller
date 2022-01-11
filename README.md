@@ -20,6 +20,23 @@ Kubernetes controller which watches applications (Deployment and DaemonSet) and 
 - check in the sample deployment image, it will get cloned & pushed to your given docker registry and re-use in the deployment
 
 ### InCluster
+- provide your creds in `config/manager/dockerhub-secret/.dockerconfigjson` file
+- give your own registry name in the `config/manager/manager.yaml` in `env` portion
+- `export IMG="<registry>/<image>:<tag>"`
+- change the `config/manger/manager.yaml`'s image with your given IMG
+- `make docker-build`
+- `make docker-push`
+- `make deploy`
+- verify the deployment by: `kubectl get all -n image-clone-controller-system`  
+- apply respective deployments/daemonset objects and see the changes inside the object's yaml's image
+- undeploy by: `make undeploy`
+
+## Disclaimer
+- It's a hobby project, not a production grade
+- There are couple of things which still need to be fixed
+- Testing is not added so far (will add)
+- Unauthorization issue is there when running InCluster, need to fix that
+- But, it works fine if we run locally
 
 ## Resources:
 - https://book.kubebuilder.io/quick-start.html
