@@ -37,11 +37,20 @@ Kubernetes controller which watches applications (Deployment and DaemonSet) and 
 - check in the sample deployment image, it will get cloned & pushed to your given docker registry and re-use in the deployment
 - undeploy by: `make undeploy`
 
+## e2e test
+- Added e2e test for deployment controller, similarly will add for DaemonSet controller
+- For using Deployment controller test follow below steps:
+  - run the controller (either locally or incluster running the manager)
+  - in another terminal go to project's : `cd tests/e2e`
+  - in the `tests/e2e/framework/docker-cred-secret.go` file provide your dockerhub "username:password" in the "auth" field
+  - run `ginkgo run --which-controller=<controller_name> --registry=<your_dockerhub_username>`
+  - ex: `ginkgo run -- --which-controller=deployment --registry=shahincsejnu`
+  - Note: make sure you sync the namespace, registry name among test files & controllers
+  
 ## Disclaimer
 - It's a hobby project, not a production grade
 
 ## What's Next?
-- Adding e2e test using Ginkgo & Gomega
 - make this controller code more generic 
 - make helm chart of this operator
 
