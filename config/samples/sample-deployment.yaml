@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: httpapiserver-deployment
+  name: api-deployment
   labels:
-    app: httpapiserver
+    app: apiserver
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: httpapiserver
+      app: apiserver
   template:
     metadata:
       labels:
-        app: httpapiserver
+        app: apiserver
     spec:
       containers:
-        - name: httpapiserver
-          image: pkbhowmick/go-rest-api:latest
+        - name: apiserver
+          image: sakibalamin/apiserver:1.0.1
           ports:
             - containerPort: 8080

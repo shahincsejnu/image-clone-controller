@@ -5,7 +5,6 @@ go 1.16
 require (
 	github.com/go-logr/logr v0.4.0
 	github.com/google/go-containerregistry v0.5.2-0.20210609162550-f0ce2270b3b4
-	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20220107180046-bf65fd766231
 	github.com/onsi/ginkgo v1.16.4
 	github.com/onsi/gomega v1.15.0
 	k8s.io/api v0.22.1

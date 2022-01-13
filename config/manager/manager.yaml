@@ -35,9 +35,6 @@ spec:
         - --leader-elect
         image: shahincsejnu/controller:v0.0.1
         name: manager
-        env:
-          - name: REGISTRY
-            value: "shahincsejnu"
         securityContext:
           allowPrivilegeEscalation: false
 #        livenessProbe:

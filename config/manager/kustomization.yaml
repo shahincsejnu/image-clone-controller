@@ -8,12 +8,6 @@ configMapGenerator:
 - files:
   - controller_manager_config.yaml
   name: manager-config
-
-secretGenerator:
-- files:
-  - dockerhub-secret/.dockerconfigjson
-  name: cred
-  type: kubernetes.io/dockerconfigjson
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 images:

@@ -11,35 +11,39 @@ Kubernetes controller which watches applications (Deployment and DaemonSet) and 
 
 ## Use
 
-### Locally
+### Locally running the manager
 - clone this repo
 - open the repo locally
-- `docker login`
-- `export REGISTRY="<your_dockerhub_username>"`  
-- `make`
-- `./bin/manager`
+- run `make`
+- run `./bin/manager`
 - open another terminal and go to samples: `cd config/samples`
-- apply sample deployment: `kubectl apply -f sample-deployment.yaml`
+- apply docker cred secret & sample deployment: 
+    - give <base64 encoded username:password of your docker registry> in the `auth:` field of the docker-cred-k8s-secret 
+    - run `kubectl apply -f docker-cred-secret.yaml`
+    - run `kubectl apply -f sample-deployment.yaml`
 - check in the sample deployment image, it will get cloned & pushed to your given docker registry and re-use in the deployment
 
-### InCluster
-- provide your creds in `config/manager/dockerhub-secret/.dockerconfigjson` file
-- give your own registry name in the `config/manager/manager.yaml` in `env` portion
-- `export IMG="<registry>/<image>:<tag>"`
-- change the `config/manger/manager.yaml`'s image with your given IMG
+### InCluster manager running
+- `export IMG="<your_registry>/<controller_image_name>:<tag>"`
 - `make docker-build`
-- `make docker-push`
+- `make docker-push` (Note: for docker push you need to login in your dockerhub from the current terminal by `docker login`)
 - `make deploy`
 - verify the deployment by: `kubectl get all -n image-clone-controller-system`  
-- apply respective deployments/daemonset objects and see the changes inside the object's yaml's image
+- open another terminal and go to samples: `cd config/samples`
+- apply docker cred secret & sample deployment:
+    - give <base64 encoded username:password of your docker registry> in the `auth:` field of the docker-cred-k8s-secret
+    - run `kubectl apply -f docker-cred-secret.yaml`
+    - run `kubectl apply -f sample-deployment.yaml`
+- check in the sample deployment image, it will get cloned & pushed to your given docker registry and re-use in the deployment
 - undeploy by: `make undeploy`
 
 ## Disclaimer
 - It's a hobby project, not a production grade
-- There are couple of things which still need to be fixed
-- Testing is not added so far (will add)
-- Unauthorization issue is there when running InCluster, need to fix that
-- But, it works fine if we run locally
+
+## What's Next?
+- Adding e2e test using Ginkgo & Gomega
+- make this controller code more generic 
+- make helm chart of this operator
 
 ## Resources:
 - https://book.kubebuilder.io/quick-start.html

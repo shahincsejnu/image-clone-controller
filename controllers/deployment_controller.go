@@ -7,13 +7,15 @@ package controllers
 import (
 	"context"
 	"github.com/go-logr/logr"
+	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/crane"
 	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/klog/v2"
 	meta_util "kmodules.xyz/client-go/meta"
-	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -34,7 +36,7 @@ type DeploymentReconciler struct {
 //+kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=secrets,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=*,resources=*,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=core,resources=events,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -54,7 +56,30 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	registry := os.Getenv("REGISTRY") + "/"
+	// Getting the dockerhub credentials k8s secret
+	secretObj := &v1.Secret{}
+	secretNamespaceName := types.NamespacedName{
+		Namespace: "image-clone-controller-system",
+		Name:      "image-clone-controller-cred",
+	}
+	if err := r.Get(ctx, secretNamespaceName, secretObj); err != nil {
+		log.Error(err, "unable to fetch dockerhub credentials k8s secret")
+		return ctrl.Result{}, err
+	}
+
+	auth := string(secretObj.Data["auth"])
+	authSlice := strings.Split(auth, ":")
+
+	username := authSlice[0]
+	password := authSlice[1]
+
+	cfgAuth := authn.AuthConfig{
+		Username: username,
+		Password: password,
+		Auth:     auth,
+	}
+
+	registry := username + "/"
 	// traverse all of the containers of deployment to check & clone the images
 	for index, container := range obj.Spec.Template.Spec.Containers {
 		img := container.Image
@@ -62,11 +87,11 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		if strings.HasPrefix(img, registry) {
 			continue
 		}
-		// Add $REGISTRY as prefix of the image for marking that it's cloned image
+		// Add registry as prefix of the image for marking that it's cloned image
 		modifiedImage := registry + strings.ReplaceAll(img, "/", "-")
 
 		// copy the modified image to own repository using crane.Copy
-		err := crane.Copy(container.Image, modifiedImage)
+		err := crane.Copy(container.Image, modifiedImage, crane.WithAuth(authn.FromConfig(cfgAuth)))
 		if err != nil {
 			return ctrl.Result{}, err
 		}
